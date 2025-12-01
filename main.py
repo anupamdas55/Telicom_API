@@ -1,92 +1,41 @@
-# from fastapi import FastAPI
-# from db_config import get_connection
-
-# app = FastAPI()
-
-# @app.get("/")
-# def home():
-#     return {"message": "Telecom API is running successfully!"}
-
-# @app.get("/telecom_churn")
-# def get_telecom_churn():
-#     try:
-#         conn = get_connection()
-#         cur = conn.cursor()
-        
-#         # Fetch all data from table
-#         cur.execute("SELECT * FROM telecom_churn;")
-#         rows = cur.fetchall()
-
-#         # Get column names
-#         col_names = [desc[0] for desc in cur.description]
-
-#         # Convert to JSON (list of dicts)
-#         data = [dict(zip(col_names, row)) for row in rows]
-
-#         cur.close()
-#         conn.close()
-
-#         return {
-#             "status": "success",
-#             "total_rows": len(data),
-#             "data": data
-#         }
-
-#     except Exception as e:
-#         return {"status": "error", "message": str(e)}
-
-from fastapi import FastAPI, Header, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from db_config import get_connection
-import os
 
-app = FastAPI(title="Telecom API")
+app = FastAPI()
 
-# Load API Key from environment variable
-API_KEY = os.getenv("API_KEY", "anupam_telecom_apikey405")
-
-# Function to verify API key
-def verify_api_key(key: str):
-    if key != API_KEY:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid or missing API key"
-        )
-
-# Home route
 @app.get("/")
-def home(x_api_key: str = Header(None)):
-    verify_api_key(x_api_key)
+def home():
     return {"message": "Telecom API is running successfully!"}
 
-# Telecom Churn data route
 @app.get("/telecom_churn")
-def get_telecom_churn(x_api_key: str = Header(None)):
-    verify_api_key(x_api_key)
+def get_telecom_churn():
     try:
         conn = get_connection()
         cur = conn.cursor()
-
+        
+        # Fetch all data from table
         cur.execute("SELECT * FROM telecom_churn;")
         rows = cur.fetchall()
+
+        # Get column names
         col_names = [desc[0] for desc in cur.description]
 
+        # Convert to JSON (list of dicts)
         data = [dict(zip(col_names, row)) for row in rows]
 
         cur.close()
         conn.close()
 
-        return JSONResponse(content={
+        return {
             "status": "success",
             "total_rows": len(data),
             "data": data
-        })
+        }
 
     except Exception as e:
-        return JSONResponse(content={
-            "status": "error",
-            "message": str(e)
-        })
+        return {"status": "error", "message": str(e)}
+
+
 
 
 
